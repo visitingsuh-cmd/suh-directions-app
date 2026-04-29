@@ -2,310 +2,1177 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Find Your Way — Sligo University Hospital</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>SUH Wayfinder — Sligo University Hospital</title>
+<meta name="description" content="Find your way around Sligo University Hospital">
+<meta name="theme-color" content="#006152">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,Helvetica,sans-serif;background:#f4f5f5;color:#01241A;-webkit-font-smoothing:antialiased;min-height:100vh}
+/* ═══════════════════════════════════════════════════════════
+   SUH WAYFINDING APP
+   HSE V5 brand-compliant. Design language matches physical
+   signage system: vertical by colour, horizontal by direction.
+   ═══════════════════════════════════════════════════════════ */
 
-.hdr{background:#006152;color:#fff;padding:12px 16px 10px;position:sticky;top:0;z-index:100}
-.hdr-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.hdr-logo{height:28px;width:auto;display:block;flex-shrink:0}
-.hdr-txt{margin-left:auto;text-align:right;font-size:12px;line-height:1.3;opacity:.85}
-.hdr-txt b{display:block;font-size:14px;opacity:1}
-.srch{position:relative}
-.srch input{width:100%;padding:10px 36px 10px 14px;border:none;border-radius:8px;font-size:16px;font-family:Arial,sans-serif;background:rgba(255,255,255,.15);color:#fff;outline:none}
-.srch input::placeholder{color:rgba(255,255,255,.5)}
-.srch input:focus{background:rgba(255,255,255,.25)}
-.srch-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer;display:none;padding:4px}
+:root {
+  /* HSE Brand */
+  --hse-green: #006152;
+  --hse-green-dark: #004d41;
+  --hse-green-light: #e8f0ee;
 
-.tabs{display:flex;gap:6px;padding:10px 16px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{flex-shrink:0;padding:6px 14px;border-radius:18px;font-size:12px;font-weight:bold;cursor:pointer;border:2px solid #CCD4D1;background:#fff;color:#667D75;transition:all .2s;white-space:nowrap}
-.tab.on{border-color:#006152;background:#006152;color:#fff}
+  /* Floor identity colours - placeholder hex codes pending Pantone match */
+  --floor-2: #9CA3AF;        /* Grey - back of house */
+  --floor-3: #1E40AF;        /* Navy blue - entry floor */
+  --floor-4: #FACC15;        /* Yellow */
+  --floor-5: #9333EA;        /* Purple */
+  --floor-6: #EC4899;        /* Pink */
+  --floor-7: #F97316;        /* Orange */
+  --floor-8: #BFD53A;        /* Lime / chartreuse */
 
-.main{padding:6px 16px 80px}
-.lbl{font-size:11px;color:#667D75;padding:10px 0 6px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px}
-.empty{text-align:center;padding:40px 20px;color:#99A8A3;font-size:14px}
+  /* Functional colours */
+  --emergency-red: #D6232E;
+  --exit-yellow: #FFD60A;
 
-.card{background:#fff;border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;border-left:4px solid #006152;transition:box-shadow .15s}
-.card:active{box-shadow:0 2px 12px rgba(0,0,0,.1)}
-.card-top{display:flex;align-items:center;gap:10px}
-.card-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.card-icon svg{width:18px;height:18px}
-.card-name{font-size:15px;font-weight:bold;color:#01241A;line-height:1.2}
-.card-sub{font-size:12px;color:#667D75;margin-top:2px}
-.card-meta{display:flex;gap:12px;margin-top:4px;margin-left:44px}
-.card-meta span{font-size:11px;color:#99A8A3}
+  /* Text */
+  --text: #1a1a1a;
+  --text-mid: #4a4a4a;
+  --text-light: #717171;
+  --border: #d9d9d9;
+  --bg: #ffffff;
+  --bg-soft: #f7f7f5;
+  --white: #ffffff;
 
-/* Pastel floor accent colours */
-.fl3{border-left-color:#006152}.fl3 .card-icon{background:#E0EEEC;color:#006152}
-.fl4{border-left-color:#6B8F65}.fl4 .card-icon{background:#C8D8C0;color:#3D5E38}
-.fl5{border-left-color:#5088A8}.fl5 .card-icon{background:#B8D4E3;color:#2A6080}
-.fl6{border-left-color:#7B60A0}.fl6 .card-icon{background:#D5C8E0;color:#5A3D80}
-.fl7{border-left-color:#5A90B8}.fl7 .card-icon{background:#C0D8EA;color:#2D6890}
-.fl8{border-left-color:#B89850}.fl8 .card-icon{background:#E8D8B8;color:#8A7030}
+  /* Spacing & shape */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.10);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
 
-.dir{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#f4f5f5;z-index:200;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.dir.show{display:block}
-.dir-hdr{position:sticky;top:0;z-index:10;padding:14px 16px;display:flex;align-items:center;gap:12px;background:#006152}
-.dir-back{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px;line-height:1}
-.dir-title{font-size:16px;font-weight:bold;color:#fff;flex:1}
-.dir-floor{font-size:11px;color:rgba(255,255,255,.7);font-weight:normal}
-.dir-info{padding:14px 16px;background:#fff;border-bottom:1px solid #E5E8E8}
-.dir-info-row{display:flex;gap:16px;font-size:13px;color:#667D75}
-.dir-info-row span{display:flex;align-items:center;gap:4px}
-.dir-body{padding:16px}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-.step{display:flex;gap:12px;position:relative;padding-bottom:20px}
-.step:last-child{padding-bottom:0}
-.step-dot{width:28px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
-.dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#fff;flex-shrink:0}
-.dot-go{background:#006152}
-.dot-turn{background:#0048A8}
-.dot-arrive{background:#DF8234}
-.step-line{width:2px;flex:1;background:#CCD4D1;margin-top:4px}
-.step:last-child .step-line{display:none}
-.step-txt{font-size:14px;line-height:1.5;color:#335247;padding-top:4px}
-.step-txt strong{color:#01241A}
-.step-lm{font-size:12px;color:#99A8A3;margin-top:3px;font-style:italic}
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* ── HSE HEADER ── */
+.header {
+  background: var(--hse-green);
+  color: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+
+.header-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hse-logo {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+}
+
+.hse-logo svg { width: 100%; height: 100%; }
+
+.header-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255,255,255,0.3);
+}
+
+.header-text { flex: 1; min-width: 0; }
+
+.header-title {
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  opacity: 0.85;
+  line-height: 1.2;
+}
+
+.lang-toggle {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 32px;
+  transition: background 0.15s;
+}
+
+.lang-toggle:hover, .lang-toggle:focus { background: rgba(255,255,255,0.25); }
+
+.lang-toggle.active {
+  background: white;
+  color: var(--hse-green);
+}
+
+/* ── BACK BUTTON ── */
+.back-bar {
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: none;
+}
+
+.back-bar.visible { display: block; }
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--hse-green);
+  font-size: 15px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  padding: 6px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.back-btn:hover, .back-btn:focus { text-decoration: underline; }
+
+/* ── MAIN CONTAINER ── */
+.main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 0 80px;
+}
+
+/* ── INTRO ── */
+.intro {
+  padding: 24px 20px 16px;
+}
+
+.intro-headline {
+  font-size: 26px;
+  font-weight: bold;
+  color: var(--hse-green);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.intro-subhead {
+  font-size: 16px;
+  color: var(--text-mid);
+  line-height: 1.4;
+}
+
+.placeholder-banner {
+  background: #FFF8E1;
+  border-left: 4px solid #F59E0B;
+  padding: 12px 16px;
+  margin: 0 20px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #78350F;
+}
+
+.placeholder-banner strong { display: block; margin-bottom: 2px; }
+
+/* ── SEARCH ── */
+.search-wrap {
+  padding: 0 20px 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23717171' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 14px center;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--hse-green);
+}
+
+/* ── DESTINATION CARDS ── */
+.cards {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  align-items: stretch;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  text-align: left;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  width: 100%;
+  overflow: hidden;
+}
+
+.card:hover, .card:focus {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--hse-green);
+}
+
+.card:active { transform: translateY(0); }
+
+.card-floor-block {
+  width: 56px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
+
+.card-floor-num {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.card-floor-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+.card-content {
+  flex: 1;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.card-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  color: var(--hse-green);
+}
+
+.card-icon svg { width: 100%; height: 100%; }
+
+.card-text { flex: 1; min-width: 0; }
+
+.card-name {
+  font-size: 17px;
+  font-weight: bold;
+  color: var(--text);
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.card-name-irish {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.25;
+  font-style: italic;
+}
+
+.card-arrow {
+  flex-shrink: 0;
+  color: var(--hse-green);
+  width: 20px;
+  height: 20px;
+}
+
+.card-arrow svg { width: 100%; height: 100%; }
+
+/* Floor colour modifiers (text colour adjusted for contrast) */
+.floor-2 { background: var(--floor-2); }
+.floor-3 { background: var(--floor-3); }
+.floor-4 { background: var(--floor-4); color: var(--text); }
+.floor-5 { background: var(--floor-5); }
+.floor-6 { background: var(--floor-6); }
+.floor-7 { background: var(--floor-7); }
+.floor-8 { background: var(--floor-8); color: var(--text); }
+
+/* ── DETAIL VIEW ── */
+.detail {
+  display: none;
+  padding: 0 0 40px;
+}
+
+.detail.active { display: block; }
+
+.detail-header {
+  padding: 20px 20px 16px;
+}
+
+.detail-floor-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  font-weight: bold;
+  color: white;
+}
+
+.detail-floor-banner.floor-4,
+.detail-floor-banner.floor-8 { color: var(--text); }
+
+.detail-floor-num {
+  font-size: 36px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.detail-floor-text {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: normal;
+}
+
+.detail-floor-text strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 2px;
+}
+
+.detail-name {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--hse-green);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.detail-name-irish {
+  font-size: 18px;
+  color: var(--text-mid);
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+.detail-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: var(--text-mid);
+}
+
+.detail-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--bg-soft);
+  border-radius: 16px;
+}
+
+.detail-meta-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ── STEPS ── */
+.steps-section {
+  padding: 0 20px;
+}
+
+.steps-heading {
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--hse-green);
+  margin-bottom: 12px;
+  padding-top: 8px;
+}
+
+.step {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.step:last-of-type { border-bottom: none; }
+
+.step-num {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--hse-green);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.step-num.arrive {
+  background: var(--hse-green-dark);
+  width: 32px;
+  height: 32px;
+}
+
+.step-content { flex: 1; padding-top: 4px; }
+
+.step-text {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.step-text strong { color: var(--hse-green); }
+
+.step-arrow {
+  display: inline-block;
+  font-weight: bold;
+  margin: 0 2px;
+}
+
+.arrow-up { color: var(--hse-green); }
+.arrow-left { color: #2563EB; }
+.arrow-right { color: #2563EB; }
+.arrow-down { color: var(--hse-green); }
+.arrow-arrive { color: #DF8234; }
+
+.step-landmark {
+  font-size: 13px;
+  color: var(--text-mid);
+  font-style: italic;
+  margin-top: 4px;
+  padding-left: 10px;
+  border-left: 3px solid var(--border);
+}
+
+.step-photo-placeholder {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.step-photo-placeholder::before {
+  content: "📷 ";
+  margin-right: 4px;
+}
+
+/* ── LIFT TRANSITION ── */
+.lift-transition {
+  margin: 12px 0;
+  padding: 14px 16px;
+  background: var(--hse-green-light);
+  border-left: 4px solid var(--hse-green);
+  border-radius: var(--radius-sm);
+}
+
+.lift-transition-label {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--hse-green);
+  margin-bottom: 6px;
+}
+
+.lift-transition-text {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.lift-transition-text .floor-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  margin: 0 4px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.lift-transition-text .floor-chip.floor-4,
+.lift-transition-text .floor-chip.floor-8 { color: var(--text); }
+
+/* ── ACCESSIBILITY NOTE ── */
+.access-note {
+  margin: 20px 20px 0;
+  padding: 14px 16px;
+  background: var(--hse-green-light);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.access-note strong {
+  color: var(--hse-green);
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ── EMERGENCY FOOTER ── */
+.emergency-footer {
+  margin: 24px 20px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.emerg-block, .exit-block {
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  text-align: center;
+}
+
+.emerg-block {
+  background: var(--emergency-red);
+  color: white;
+}
+
+.exit-block {
+  background: var(--exit-yellow);
+  color: var(--text);
+  border: 1px solid #B7950B;
+}
+
+/* ── EMPTY STATE ── */
+.empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-mid);
+  font-size: 15px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 24px 20px;
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+.footer a {
+  color: var(--hse-green);
+  text-decoration: none;
+}
+
+.footer a:hover { text-decoration: underline; }
+
+/* ── RESPONSIVE ── */
+@media (min-width: 480px) {
+  .intro-headline { font-size: 30px; }
+  .detail-name { font-size: 32px; }
+}
+
+/* Reduce motion if requested */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  html { scroll-behavior: auto; }
+}
+
 </style>
 </head>
 <body>
 
-<div class="hdr">
-  <div class="hdr-row">
-    <img class="hdr-logo" src="data:image/png;base64,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" alt="HSE">
-    <div class="hdr-txt"><b>Sligo University Hospital</b>Find Your Way</div>
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="hse-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="HSE">
+        <!-- Stylised HSE waveform logo -->
+        <g fill="white">
+          <path d="M10 35 Q 20 20, 35 30 T 60 35 Q 75 38, 90 28" stroke="white" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M10 50 Q 20 35, 35 45 T 60 50 Q 75 53, 90 43" stroke="white" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M10 65 Q 20 50, 35 60 T 60 65 Q 75 68, 90 58" stroke="white" stroke-width="6" fill="none" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <div class="header-title" data-i18n="appTitle">SUH Wayfinder</div>
+      <div class="header-subtitle" data-i18n="appSubtitle">Sligo University Hospital</div>
+    </div>
+    <button class="lang-toggle" id="langToggle" aria-label="Toggle Irish language">Gaeilge</button>
   </div>
-  <div class="srch">
-    <input type="text" id="q" placeholder="Search departments..." autocomplete="off">
-    <button class="srch-x" id="qx" onclick="clearSearch()">&times;</button>
-  </div>
+</header>
+
+<!-- ═══ BACK BAR ═══ -->
+<div class="back-bar" id="backBar">
+  <button class="back-btn" id="backBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m12 19-7-7 7-7"/>
+      <path d="M19 12H5"/>
+    </svg>
+    <span data-i18n="back">All destinations</span>
+  </button>
 </div>
 
-<div class="tabs" id="tabs"></div>
-<div class="main">
-  <div class="lbl" id="lbl">All Departments</div>
-  <div id="list"></div>
-</div>
+<!-- ═══ MAIN ═══ -->
+<main class="main">
 
-<div class="dir" id="dir">
-  <div class="dir-hdr" id="dirHdr">
-    <button class="dir-back" onclick="closeDir()">&#8592;</button>
-    <div>
-      <div class="dir-title" id="dirTitle"></div>
-      <div class="dir-floor" id="dirFloor"></div>
+  <!-- LIST VIEW -->
+  <section id="listView">
+    <div class="intro">
+      <h1 class="intro-headline" data-i18n="introHeadline">Find your way</h1>
+      <p class="intro-subhead" data-i18n="introSubhead">Tap a destination for step-by-step directions from the main entrance.</p>
+    </div>
+
+    <div class="placeholder-banner" data-i18n-html="placeholderBanner">
+      <strong>Pilot — eight destinations</strong>
+      More departments will be added once their routes have been verified.
+    </div>
+
+    <div class="search-wrap">
+      <input type="search" class="search-input" id="searchInput" placeholder="Search…" data-i18n-placeholder="searchPlaceholder" autocomplete="off">
+    </div>
+
+    <div class="cards" id="cards"></div>
+
+    <div class="empty" id="emptyState" style="display:none;" data-i18n="noResults">No matching destinations.</div>
+  </section>
+
+  <!-- DETAIL VIEW -->
+  <section class="detail" id="detailView"></section>
+
+  <!-- EMERGENCY FOOTER (always visible) -->
+  <div class="emergency-footer">
+    <div class="emerg-block">
+      <span data-i18n="emergency">Emergency</span> — <span data-i18n="level3">Level 3</span>
+    </div>
+    <div class="exit-block">
+      <span data-i18n="exit">Exit</span> — <span data-i18n="level3">Level 3</span>
     </div>
   </div>
-  <div class="dir-info" id="dirInfo"></div>
-  <div class="dir-body" id="dirBody"></div>
-</div>
+
+  <div class="footer">
+    <p data-i18n-html="footerText">
+      Sligo University Hospital · HSE West &amp; North West<br>
+      <a href="https://visitingsuh.com">visitingsuh.com</a>
+    </p>
+  </div>
+
+</main>
 
 <script>
-const floors = [
-  {id:'all', label:'All'},
-  {id:'3', label:'Level 3 · Ground'},
-  {id:'4', label:'Level 4'},
-  {id:'5', label:'Level 5'},
-  {id:'6', label:'Level 6'},
-  {id:'7', label:'Level 7'},
-  {id:'8', label:'Level 8'}
-];
-
-const floorLabel = {
-  '3':'Level 3 (Ground Floor — You are here)',
-  '4':'Level 4',
-  '5':'Level 5',
-  '6':'Level 6',
-  '7':'Level 7',
-  '8':'Level 8'
+// ═══════════════════════════════════════════════════════════
+// TRANSLATIONS (Irish translations marked PLACEHOLDER —
+// to be confirmed by qualified translator per HSE V5)
+// ═══════════════════════════════════════════════════════════
+const i18n = {
+  en: {
+    appTitle: 'SUH Wayfinder',
+    appSubtitle: 'Sligo University Hospital',
+    introHeadline: 'Find your way',
+    introSubhead: 'Tap a destination for step-by-step directions from the main entrance.',
+    placeholderBanner: '<strong>Pilot — eight destinations</strong>More departments will be added once their routes have been verified.',
+    searchPlaceholder: 'Search…',
+    back: 'All destinations',
+    noResults: 'No matching destinations.',
+    emergency: 'Emergency',
+    exit: 'Exit',
+    level3: 'Level 3',
+    footerText: 'Sligo University Hospital · HSE West &amp; North West<br><a href="https://visitingsuh.com">visitingsuh.com</a>',
+    onLevel: 'is on Level',
+    floorColour: '— the {colour} floor',
+    accessibility: 'Accessibility',
+    directions: 'Directions',
+    arriveText: 'You have arrived',
+    floorColours: {
+      2: 'grey',
+      3: 'blue',
+      4: 'yellow',
+      5: 'purple',
+      6: 'pink',
+      7: 'orange',
+      8: 'lime'
+    },
+    langToggleLabel: 'Gaeilge'
+  },
+  ga: {
+    // PLACEHOLDER — rough Irish translations, to be confirmed by qualified translator
+    appTitle: 'Treoraí Bealaigh OOS',
+    appSubtitle: 'Ospidéal Ollscoile Shligigh',
+    introHeadline: 'Aimsigh do bhealach',
+    introSubhead: 'Tapáil ceann scríbe le treoracha céim ar chéim ón bpríomhbhealach isteach.',
+    placeholderBanner: '<strong>Treoirthionscadal — ocht gceann scríbe</strong>Cuirfear tuilleadh ranna leis nuair a bheidh a mbealaí deimhnithe.',
+    searchPlaceholder: 'Cuardaigh…',
+    back: 'Gach ceann scríbe',
+    noResults: 'Níl aon cheann scríbe ag teacht leis sin.',
+    emergency: 'Éigeandáil',
+    exit: 'Slí Amach',
+    level3: 'Leibhéal 3',
+    footerText: 'Ospidéal Ollscoile Shligigh · FSS Iarthar agus Iarthuaisceart<br><a href="https://visitingsuh.com">visitingsuh.com</a>',
+    onLevel: 'ar Leibhéal',
+    floorColour: '— an t-urlár {colour}',
+    accessibility: 'Inrochtaineacht',
+    directions: 'Treoracha',
+    arriveText: 'Tá tú tagtha',
+    floorColours: {
+      2: 'liath',
+      3: 'gorm',
+      4: 'buí',
+      5: 'corcra',
+      6: 'bándearg',
+      7: 'oráiste',
+      8: 'líoma'
+    },
+    langToggleLabel: 'English'
+  }
 };
 
+let currentLang = 'en';
+
+// ═══════════════════════════════════════════════════════════
+// ICONS — HSE Green outline style, matching directory designs
+// ═══════════════════════════════════════════════════════════
 const icons = {
-  emergency:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 22h20L12 2z"/><line x1="12" y1="9" x2="12" y2="15"/><circle cx="12" cy="18" r=".5" fill="currentColor"/></svg>',
-  clinic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
-  scan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 4v4M12 16v4M4 12h4M16 12h4"/></svg>',
-  blood:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C12 2 5 10 5 15a7 7 0 0014 0C19 10 12 2 12 2z"/></svg>',
-  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 000-7.8z"/></svg>',
-  kidney:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 4c-3 0-5 3-5 7s3 9 7 9c2 0 3-1 4-3"/><path d="M16 4c3 0 5 3 5 7s-3 9-7 9c-2 0-3-1-4-3"/></svg>',
-  physio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="3"/><path d="M12 8v8M8 12h8M8 20l4-4 4 4"/></svg>',
-  bed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 18V6M3 11h18v7M21 18V11M6 11V8h5v3"/></svg>',
-  baby:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="10" r="6"/><path d="M12 16v4M8 22h8"/><circle cx="10" cy="9" r=".8" fill="currentColor"/><circle cx="14" cy="9" r=".8" fill="currentColor"/></svg>',
-  lung:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v10M8 8c-4 2-5 6-5 9h5M16 8c4 2 5 6 5 9h-5"/></svg>',
-  eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
-  bone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 4a3 3 0 013 3v10a3 3 0 01-3 3M16 4a3 3 0 00-3 3v10a3 3 0 003 3"/></svg>',
-  surgery:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21l7-7M16 3l5 5-11 11-5-5z"/></svg>',
-  skin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
-  brain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a7 7 0 00-7 7c0 3 2 5.5 4 7l3 4 3-4c2-1.5 4-4 4-7a7 7 0 00-7-7z"/><path d="M12 2v18"/></svg>',
-  therapy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/></svg>',
-  services:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>',
-  church:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v6M9 5h6M6 22V11l6-5 6 5v11H6z"/></svg>',
-  shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 7v2a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0V7l-3-5H6z"/><path d="M3 9v11a2 2 0 002 2h14a2 2 0 002-2V9"/></svg>',
-  oncology:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>',
-  child:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="5"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/></svg>',
-  icu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l3-6 4 12 3-6h4"/></svg>'
+  stethoscope: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg>',
+  droplet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+  scan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="4" x2="8" y2="20"/><line x1="14" y1="4" x2="14" y2="20"/></svg>',
+  shop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20l-2 13H4z"/><path d="M2 7l2-4h16l2 4"/><path d="M9 11v4M15 11v4"/></svg>',
+  baby: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></svg>',
+  oncology: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>',
+  ward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 14h18"/><path d="M8 8V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3"/><circle cx="7" cy="11" r="0.5" fill="currentColor"/></svg>',
+  surgical: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.121 2.879a3 3 0 0 1 4.242 4.242L7.5 18 3 19.5 4.5 15z"/><path d="m12.5 5.5 4 4"/></svg>',
+  walk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="m9 20 3-6 1-3 4 4 4 1"/><path d="m6 9 3 3v8"/></svg>',
+  accessible: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M19 13v-2a7 7 0 0 0-14 0v2"/><path d="M5 13a7 7 0 0 0 14 0"/><path d="M12 13v8"/></svg>',
+  arrowRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
 };
 
-// Shared route segments
-const ENTER = [
-  {t:'Enter through the Main Entrance sliding doors.',type:'go'},
-  {t:'Continue through the second set of sliding doors.',type:'go'},
-  {t:'Pass through the open fire doors into the reception area.',type:'go'}
-];
-const LEFT = [{t:'Turn <b>left</b> onto the main corridor.',type:'turn'}];
-const RIGHT = [{t:'Turn <b>right</b> onto the main corridor.',type:'turn'}];
-const TO_SEC_LIFTS = [...RIGHT,{t:'The secondary lifts are ahead on your right.',type:'go'}];
-const TO_MAIN_LIFTS = [...RIGHT,
-  {t:'Continue straight past the secondary lifts.',type:'go'},
-  {t:'Pass Ambulatory Gynaecology on your right.',type:'go'},
-  {t:'Continue through the archway / open double doors.',type:'go'},
-  {t:'Pass Physiotherapy on your right.',type:'go'},
-  {t:'Continue down the corridor.',type:'go'},
-  {t:'At the junction, continue straight past the shop.',type:'go'},
-  {t:'The Main Lift Lobby is through the archway to your left. Lifts on the right, stairs on the left.',type:'turn'}
-];
-function secLift(lv){return{t:'Take the lift or stairs to <b>Level '+lv+'</b>.',type:'go'}}
-function mainLift(lv){return{t:'Take the lift or stairs to <b>Level '+lv+'</b>.',type:'go'}}
-function mainExit(){return{t:'Exit the lift. Turn left (or right from stairs). Through the double doors.',type:'turn'}}
-function arr(n,note){return{t:'You have arrived at <b>'+n+'</b>.'+(note?' '+note:''),type:'arrive'}}
+// ═══════════════════════════════════════════════════════════
+// DESTINATIONS DATA
+// All routes start at the new main entrance.
+// "Continue strange that in" in source corrected to "Continue
+// straight past". Lift transitions modeled separately so that
+// the floor identity colour can be displayed at the transition.
+// ═══════════════════════════════════════════════════════════
+const destinations = [
+  // ── FLOOR 3 ──
+  {
+    id: 'opd',
+    name: 'Outpatients Department (OPD)',
+    nameIrish: 'Rannóg na nOthar Seachtrach',
+    floor: 3,
+    icon: 'stethoscope',
+    accessNote: 'Wheelchair accessible throughout. Seating available in waiting areas.',
+    accessNoteIrish: 'Inrochtaineacht do chathaoir rothaí. Suíocháin ar fáil i limistéir feithimh.',
+    steps: [
+      { text: 'Enter through the <strong>main entrance</strong> sliding doors.', landmark: null },
+      { text: 'Continue through the lobby and inner doors into the <strong>new entrance area</strong>.', landmark: null },
+      { text: 'Go <strong>straight ahead</strong> into the main thoroughfare.', arrow: 'up', landmark: null },
+      { text: 'Turn <strong>left</strong> on the main thoroughfare.', arrow: 'left', landmark: null },
+      { text: 'OPD reception desk is on your <strong>left</strong>.', arrow: 'arrive', landmark: 'OPD Reception desk' }
+    ]
+  },
+  {
+    id: 'phlebotomy',
+    name: 'Blood Tests (Phlebotomy)',
+    nameIrish: 'Tástálacha Fola (Fleabatóime)',
+    floor: 3,
+    icon: 'droplet',
+    accessNote: 'Accessible. Take a ticket on arrival and wait to be called.',
+    accessNoteIrish: 'Inrochtana. Tóg ticéad ar theacht duit agus fan le glaoch.',
+    steps: [
+      { text: 'Enter through the <strong>main entrance</strong> sliding doors.', landmark: null },
+      { text: 'Continue through the lobby and inner doors into the <strong>new entrance area</strong>.', landmark: null },
+      { text: 'Go <strong>straight ahead</strong> into the main thoroughfare.', arrow: 'up', landmark: null },
+      { text: 'Turn <strong>left</strong> on the main thoroughfare.', arrow: 'left', landmark: null },
+      { text: 'Phlebotomy is shortly on your <strong>left</strong>, near the OPD area.', arrow: 'arrive', landmark: 'Phlebotomy / Blood Tests sign' }
+    ]
+  },
+  {
+    id: 'radiology',
+    name: 'X-Ray (Radiology)',
+    nameIrish: 'X-Gha (Raideolaíocht)',
+    floor: 3,
+    icon: 'scan',
+    accessNote: 'Fully accessible. Bring your referral letter or appointment details.',
+    accessNoteIrish: 'Lán-inrochtana. Tabhair leat do litir tarchurtha nó sonraí coinne.',
+    steps: [
+      { text: 'Enter through the <strong>main entrance</strong> sliding doors.', landmark: null },
+      { text: 'Continue through the lobby and inner doors into the <strong>new entrance area</strong>.', landmark: null },
+      { text: 'Go <strong>straight ahead</strong> into the main thoroughfare.', arrow: 'up', landmark: null },
+      { text: 'Turn <strong>right</strong> on the main thoroughfare.', arrow: 'right', landmark: null },
+      { text: 'Continue <strong>straight</strong> past the lifts and stairwell.', arrow: 'up', landmark: 'Main lift lobby on your left' },
+      { text: 'Continue past <strong>Ambulatory Gynae</strong>, then through the open double doors.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Physiotherapy</strong> on the right and an exit on the left.', arrow: 'up', landmark: null },
+      { text: 'At the junction, take a <strong>left</strong>.', arrow: 'left', landmark: null },
+      { text: 'Continue past the church through the automatic double doors.', arrow: 'up', landmark: 'The church on your left' },
+      { text: 'Radiology reception is on your <strong>left</strong>.', arrow: 'arrive', landmark: 'Radiology reception' }
+    ]
+  },
+  {
+    id: 'shop',
+    name: 'Shop',
+    nameIrish: 'Siopa',
+    floor: 3,
+    icon: 'shop',
+    accessNote: 'Accessible. Open during standard hospital hours.',
+    accessNoteIrish: 'Inrochtana. Ar oscailt le linn gnáthuaireanta an ospidéil.',
+    steps: [
+      { text: 'Enter through the <strong>main entrance</strong> sliding doors.', landmark: null },
+      { text: 'Continue through the lobby and inner doors into the <strong>new entrance area</strong>.', landmark: null },
+      { text: 'Go <strong>straight ahead</strong> into the main thoroughfare.', arrow: 'up', landmark: null },
+      { text: 'Turn <strong>right</strong> on the main thoroughfare.', arrow: 'right', landmark: null },
+      { text: 'Continue <strong>straight</strong> past the lifts and stairwell.', arrow: 'up', landmark: 'Main lift lobby on your left' },
+      { text: 'Continue past <strong>Ambulatory Gynae</strong>, then through the open double doors.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Physiotherapy</strong> on the right and an exit on the left.', arrow: 'up', landmark: null },
+      { text: 'At the junction, continue <strong>diagonally straight ahead</strong>.', arrow: 'up', landmark: null },
+      { text: 'The shop is on your <strong>left</strong>.', arrow: 'arrive', landmark: 'Shop entrance' }
+    ]
+  },
 
-const depts=[
-// Level 3
-{id:'opd',name:'Outpatient Department (OPD)',floor:'3',icon:'clinic',cat:'Clinics',walk:'3 min',acc:true,
- steps:[...ENTER,...LEFT,{t:'OPD Reception is on your <b>left</b>.',type:'turn'},arr('Outpatient Department','Check in at the OPD desk.')]},
-{id:'preadmission',name:'Pre-Admission Clinic',floor:'3',icon:'clinic',cat:'Clinics',walk:'4 min',acc:true,
- steps:[...ENTER,...LEFT,{t:'Continue straight past the stairway on your right.',type:'go'},{t:'Follow the corridor around the corner — left then immediate right.',type:'turn'},{t:'Pre-Admission Clinic is on your <b>left</b>.',type:'turn'},arr('Pre-Admission Clinic','')]},
-{id:'heartfailure',name:'Heart Failure Clinic',floor:'3',icon:'heart',cat:'Clinics',walk:'4 min',acc:true,
- steps:[...ENTER,...LEFT,{t:'Continue straight past the stairway on your right.',type:'go'},{t:'Follow the corridor around the corner — left then immediate right.',type:'turn'},{t:'Heart Failure Clinic is on your <b>right</b>.',type:'turn'},arr('Heart Failure Clinic','')]},
-{id:'renal',name:'Renal Dialysis',floor:'3',icon:'kidney',cat:'Clinics',walk:'5 min',acc:true,
- steps:[...ENTER,...LEFT,{t:'Continue straight past the stairway on your right.',type:'go'},{t:'Follow the corridor around the corner — left then immediate right.',type:'turn'},{t:'Continue straight past the exit door on your left.',type:'go'},{t:'Continue through the archway / open double doors.',type:'go'},{t:'Renal Dialysis is on your <b>right</b>, through the sliding doors.',type:'turn'},arr('Renal Dialysis','')]},
-{id:'phlebotomy',name:'Phlebotomy (Blood Tests)',floor:'3',icon:'blood',cat:'Diagnostics',walk:'5 min',acc:true,
- steps:[...ENTER,...LEFT,{t:'Continue straight past the stairway on your right.',type:'go'},{t:'Follow the corridor around the corner — left then immediate right.',type:'turn'},{t:'Continue straight past the exit door on your left.',type:'go'},{t:'Continue through the archway / open double doors.',type:'go'},{t:'Phlebotomy is on your <b>left</b>.',type:'turn'},arr('Phlebotomy','Take a ticket number and wait to be called.')]},
-{id:'ambulatorygynae',name:'Ambulatory Gynaecology',floor:'3',icon:'clinic',cat:'Clinics',walk:'3 min',acc:true,
- steps:[...ENTER,...RIGHT,{t:'Continue straight past the secondary lifts.',type:'go'},{t:'Ambulatory Gynaecology is through the double doors on your <b>right</b>.',type:'turn'},arr('Ambulatory Gynaecology','')]},
-{id:'physio',name:'Physiotherapy',floor:'3',icon:'physio',cat:'Services',walk:'4 min',acc:true,
- steps:[...ENTER,...RIGHT,{t:'Continue straight past the secondary lifts.',type:'go'},{t:'Continue past Ambulatory Gynaecology.',type:'go'},{t:'Continue through the archway / open double doors.',type:'go'},{t:'Physiotherapy is on your <b>right</b>, through the sliding double doors.',type:'turn'},arr('Physiotherapy','')]},
-{id:'ed',name:'Emergency Department',floor:'3',icon:'emergency',cat:'Urgent',walk:'6 min',acc:true,
- steps:[...ENTER,...RIGHT,{t:'Continue straight past the secondary lifts.',type:'go'},{t:'Continue past Ambulatory Gynaecology.',type:'go'},{t:'Continue through the archway / open double doors.',type:'go'},{t:'Continue past Physiotherapy on your right.',type:'go'},{t:'Continue down the corridor.',type:'go'},{t:'At the junction, take a <b>left</b>.',type:'turn'},{t:'Continue straight past the church, through the automatic double doors.',type:'go'},arr('Emergency Department','Report to ED Reception.')]},
-{id:'radiology',name:'Radiology (X-Ray / Imaging)',floor:'3',icon:'scan',cat:'Diagnostics',walk:'6 min',acc:true,
- steps:[...ENTER,...RIGHT,{t:'Continue straight past the secondary lifts.',type:'go'},{t:'Continue past Ambulatory Gynaecology.',type:'go'},{t:'Continue through the archway / open double doors.',type:'go'},{t:'Continue past Physiotherapy on your right.',type:'go'},{t:'Continue down the corridor.',type:'go'},{t:'At the junction, take a <b>left</b>.',type:'turn'},{t:'Continue straight past the church, through the automatic double doors.',type:'go'},{t:'Radiology Reception is on your <b>left</b>.',type:'turn'},arr('Radiology','')]},
-{id:'church',name:'Church / Chapel',floor:'3',icon:'church',cat:'Services',walk:'5 min',acc:true,
- steps:[...ENTER,...RIGHT,{t:'Continue straight past the secondary lifts.',type:'go'},{t:'Continue past Ambulatory Gynaecology.',type:'go'},{t:'Continue through the archway / open double doors.',type:'go'},{t:'Continue past Physiotherapy on your right.',type:'go'},{t:'Continue down the corridor.',type:'go'},{t:'At the junction, take a <b>left</b>.',type:'turn'},{t:'The Church is on your <b>left</b>.',type:'turn'},arr('Church / Chapel','Open to everyone.')]},
-{id:'shop',name:'Shop',floor:'3',icon:'shop',cat:'Services',walk:'5 min',acc:true,
- steps:[...ENTER,...RIGHT,{t:'Continue straight past the secondary lifts.',type:'go'},{t:'Continue past Ambulatory Gynaecology.',type:'go'},{t:'Continue through the archway / open double doors.',type:'go'},{t:'Continue past Physiotherapy on your right.',type:'go'},{t:'Continue down the corridor.',type:'go'},{t:'At the junction, continue straight.',type:'go'},{t:'The Shop is on your <b>left</b>.',type:'turn'},arr('Shop','')]},
-{id:'aau',name:'AAU / SSU / Discharge Lounge',floor:'3',icon:'bed',cat:'Wards',walk:'6 min',acc:true,
- steps:[...ENTER,...RIGHT,{t:'Continue straight past the secondary lifts.',type:'go'},{t:'Continue past Ambulatory Gynaecology.',type:'go'},{t:'Continue through the archway / open double doors.',type:'go'},{t:'Continue past Physiotherapy on your right.',type:'go'},{t:'Continue down the corridor.',type:'go'},{t:'At the junction, continue straight past the shop, the lift lobby and the switch area.',type:'go'},{t:'AAU is on your <b>right</b> through the double doors.',type:'turn'},arr('AAU / SSU / Discharge Lounge','')]},
-// Level 4 — secondary lifts
-{id:'endoscopy',name:'Endoscopy',floor:'4',icon:'clinic',cat:'Diagnostics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(4),{t:'Exit lift. Follow signs to Endoscopy.',type:'go'},{t:'Endoscopy is on your <b>left</b>.',type:'turn'},arr('Endoscopy','')]},
-{id:'ot',name:'Occupational Therapy',floor:'4',icon:'therapy',cat:'Services',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(4),{t:'Exit lift. Follow signs to Occupational Therapy.',type:'go'},{t:'Occupational Therapy is on your <b>right</b>.',type:'turn'},arr('Occupational Therapy','')]},
-{id:'dermatology',name:'Dermatology',floor:'4',icon:'skin',cat:'Clinics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(4),{t:'Exit lift. Follow signs to Dermatology.',type:'go'},{t:'Dermatology is on your <b>right</b>.',type:'turn'},arr('Dermatology','')]},
-{id:'cardiac',name:'Cardiac Investigations',floor:'4',icon:'heart',cat:'Diagnostics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(4),{t:'Exit lift. Follow signs to Cardiac Investigations.',type:'go'},{t:'Cardiac Investigations is on your <b>right</b>.',type:'turn'},arr('Cardiac Investigations','')]},
-{id:'cardiacrehab',name:'Cardiac Rehab',floor:'4',icon:'heart',cat:'Clinics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(4),{t:'Exit lift. Follow signs to Cardiac Rehab.',type:'go'},{t:'Cardiac Rehab is on your <b>right</b>.',type:'turn'},arr('Cardiac Rehab','')]},
-{id:'respiratory',name:'Respiratory',floor:'4',icon:'lung',cat:'Clinics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(4),{t:'Exit lift. Follow signs to Respiratory.',type:'go'},{t:'Respiratory is in the corridor to your <b>right</b>.',type:'turn'},arr('Respiratory','')]},
-{id:'dxa',name:'DXA (Bone Density)',floor:'4',icon:'bone',cat:'Diagnostics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(4),{t:'Exit lift. Follow signs to DXA.',type:'go'},{t:'DXA is in the corridor to your <b>right</b>.',type:'turn'},arr('DXA','')]},
-{id:'neurophysiology',name:'Neurophysiology',floor:'4',icon:'brain',cat:'Diagnostics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(4),{t:'Exit lift. Follow signs to Neurophysiology.',type:'go'},{t:'Neurophysiology is in the corridor to your <b>right</b>.',type:'turn'},arr('Neurophysiology','')]},
-// Level 4 — main lift lobby
-{id:'maternity',name:'Maternity',floor:'4',icon:'baby',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(4),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Maternity is on your <b>left</b>.',type:'turn'},arr('Maternity','')]},
-{id:'fetal',name:'Fetal Assessment / Early Pregnancy',floor:'4',icon:'baby',cat:'Clinics',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(4),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Fetal Assessment / Early Pregnancy is on your <b>right</b>.',type:'turn'},arr('Fetal Assessment / Early Pregnancy','')]},
-{id:'medonc',name:'Medical Oncology',floor:'4',icon:'oncology',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(4),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Medical Oncology is on your <b>right</b>.',type:'turn'},arr('Medical Oncology','')]},
-{id:'nicu',name:'Neonatal Intensive Care (NICU)',floor:'4',icon:'baby',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(4),mainExit(),{t:'Take a <b>right</b>. Continue down the corridor.',type:'turn'},{t:'NICU is on your <b>left</b>.',type:'turn'},arr('Neonatal Intensive Care','Ring the buzzer for access.')]},
-{id:'delivery',name:'Delivery Suite',floor:'4',icon:'baby',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(4),mainExit(),{t:'Take a <b>right</b>. Continue down the corridor.',type:'turn'},{t:'Delivery Suite is on your <b>right</b>.',type:'turn'},arr('Delivery Suite','')]},
-// Level 5 — secondary lifts
-{id:'medical5',name:'Medical 5',floor:'5',icon:'bed',cat:'Wards',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(5),{t:'Exit lift. Follow signs to Medical 5.',type:'go'},{t:'Medical 5 is in the corridor to your <b>left</b>.',type:'turn'},arr('Medical 5','')]},
-{id:'orthopaedics',name:'Orthopaedics',floor:'5',icon:'bone',cat:'Wards',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(5),{t:'Exit lift. Follow signs to Orthopaedics.',type:'go'},{t:'Orthopaedics is in the corridor to your <b>left</b>, past Medical 5.',type:'turn'},arr('Orthopaedics','')]},
-{id:'ophthalmics',name:'Ophthalmics (Eye Clinic)',floor:'5',icon:'eye',cat:'Clinics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(5),{t:'Exit lift. Follow signs to Ophthalmics.',type:'go'},{t:'Ophthalmics is to your <b>right</b>.',type:'turn'},arr('Ophthalmics','')]},
-// Level 5 — main lift lobby
-{id:'mednorth',name:'Medical North',floor:'5',icon:'bed',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(5),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Medical North is on your <b>right</b>.',type:'turn'},arr('Medical North','')]},
-{id:'medsouth',name:'Medical South',floor:'5',icon:'bed',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(5),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Medical South is on your <b>left</b>.',type:'turn'},arr('Medical South','')]},
-{id:'ccu',name:'Coronary Care Unit (CCU)',floor:'5',icon:'heart',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(5),mainExit(),{t:'Take a <b>right</b>. Continue through the archway / double doors.',type:'turn'},{t:'Coronary Care Unit is on your <b>right</b>.',type:'turn'},arr('Coronary Care Unit','')]},
-// Level 6 — secondary lifts
-{id:'dayservices',name:'Day Services',floor:'6',icon:'services',cat:'Services',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(6),{t:'Exit lift. Follow signs to Day Services.',type:'go'},{t:'Day Services is to your <b>right</b>.',type:'turn'},arr('Day Services','')]},
-{id:'dayoncology',name:'Day Service Oncology',floor:'6',icon:'oncology',cat:'Clinics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(6),{t:'Exit lift. Follow signs to Day Services.',type:'go'},{t:'Day Service Oncology is to your <b>right</b>.',type:'turn'},arr('Day Service Oncology','')]},
-{id:'colposcopy',name:'Colposcopy',floor:'6',icon:'clinic',cat:'Clinics',walk:'5 min',acc:true,
- steps:[...ENTER,...TO_SEC_LIFTS,secLift(6),{t:'Exit lift. Follow signs to Colposcopy.',type:'go'},{t:'Colposcopy is to your <b>left</b>.',type:'turn'},arr('Colposcopy','')]},
-// Level 6 — main lift lobby
-{id:'surgnorth',name:'Surgical North',floor:'6',icon:'surgery',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(6),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Surgical North is on your <b>right</b>.',type:'turn'},arr('Surgical North','')]},
-{id:'surggynae',name:'Surgical Gynaecology',floor:'6',icon:'surgery',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(6),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Surgical Gynaecology is on your <b>left</b>.',type:'turn'},arr('Surgical Gynaecology','')]},
-// Level 7
-{id:'medical7',name:'Medical 7',floor:'7',icon:'bed',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(7),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Medical 7 is on your <b>left</b>.',type:'turn'},arr('Medical 7','')]},
-{id:'paediatrics',name:'Paediatrics',floor:'7',icon:'child',cat:'Wards',walk:'8 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(7),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'Paediatrics is on your <b>right</b>.',type:'turn'},arr('Paediatrics','')]},
-// Level 8
-{id:'gentheatre',name:'General Theatre',floor:'8',icon:'surgery',cat:'Services',walk:'9 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(8),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'General Theatre is on your <b>left</b>.',type:'turn'},arr('General Theatre','')]},
-{id:'icu',name:'Intensive Care Unit (ICU)',floor:'8',icon:'icu',cat:'Wards',walk:'9 min',acc:true,
- steps:[...ENTER,...TO_MAIN_LIFTS,mainLift(8),mainExit(),{t:'Take a <b>left</b>. Continue through the archway / double doors.',type:'turn'},{t:'ICU is on your <b>right</b>.',type:'turn'},arr('Intensive Care Unit','')]}
+  // ── FLOOR 4 ──
+  {
+    id: 'maternity',
+    name: 'Maternity Services',
+    nameIrish: 'Seirbhísí Máithreachais',
+    floor: 4,
+    icon: 'baby',
+    accessNote: 'Lift access to Level 4. Buzzer entry on arrival — press and wait.',
+    accessNoteIrish: 'Rochtain ardaitheora go Leibhéal 4. Cnaipe ag an doras — brúigh agus fan.',
+    steps: [
+      { text: 'Enter through the <strong>main entrance</strong> sliding doors.', landmark: null },
+      { text: 'Continue through the lobby and inner doors into the <strong>new entrance area</strong>.', landmark: null },
+      { text: 'Go <strong>straight ahead</strong> into the main thoroughfare.', arrow: 'up', landmark: null },
+      { text: 'Turn <strong>right</strong> on the main thoroughfare.', arrow: 'right', landmark: null },
+      { text: 'Continue <strong>straight</strong> past the lifts and stairwell.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Ambulatory Gynae</strong> and through the open double doors.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Physiotherapy</strong> on the right and an exit on the left.', arrow: 'up', landmark: null },
+      { text: 'At the junction, continue <strong>diagonally straight ahead</strong> past the shop.', arrow: 'up', landmark: 'Shop on your left' },
+      { text: 'The lift lobby is through the archway on your <strong>left</strong>.', arrow: 'left', landmark: 'Main lift lobby — lifts on your right, stairs on your left' },
+      { type: 'lift', toFloor: 4 },
+      { text: 'Exit the lift and turn <strong>left</strong>. (If using the stairs, turn <strong>right</strong>.)', arrow: 'left', landmark: null },
+      { text: 'Pass through the open double doors and take a <strong>left</strong>.', arrow: 'left', landmark: null },
+      { text: 'Continue through the archway / double doors.', arrow: 'up', landmark: null },
+      { text: 'Maternity is on your <strong>left</strong>.', arrow: 'arrive', landmark: 'Maternity Services' }
+    ]
+  },
+  {
+    id: 'medical-oncology',
+    name: 'Medical Oncology',
+    nameIrish: 'Oinceolaíocht Liachta',
+    floor: 4,
+    icon: 'oncology',
+    accessNote: 'Lift access to Level 4. Please report to reception on arrival.',
+    accessNoteIrish: 'Rochtain ardaitheora go Leibhéal 4. Téigh chuig an deasc fáiltithe ar theacht duit.',
+    steps: [
+      { text: 'Enter through the <strong>main entrance</strong> sliding doors.', landmark: null },
+      { text: 'Continue through the lobby and inner doors into the <strong>new entrance area</strong>.', landmark: null },
+      { text: 'Go <strong>straight ahead</strong> into the main thoroughfare.', arrow: 'up', landmark: null },
+      { text: 'Turn <strong>right</strong> on the main thoroughfare.', arrow: 'right', landmark: null },
+      { text: 'Continue <strong>straight</strong> past the lifts and stairwell.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Ambulatory Gynae</strong> and through the open double doors.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Physiotherapy</strong> on the right and an exit on the left.', arrow: 'up', landmark: null },
+      { text: 'At the junction, continue <strong>diagonally straight ahead</strong> past the shop.', arrow: 'up', landmark: 'Shop on your left' },
+      { text: 'The lift lobby is through the archway on your <strong>left</strong>.', arrow: 'left', landmark: 'Main lift lobby' },
+      { type: 'lift', toFloor: 4 },
+      { text: 'Exit the lift and turn <strong>left</strong>. (If using the stairs, turn <strong>right</strong>.)', arrow: 'left', landmark: null },
+      { text: 'Pass through the open double doors and take a <strong>left</strong>.', arrow: 'left', landmark: null },
+      { text: 'Continue through the archway / double doors.', arrow: 'up', landmark: null },
+      { text: 'Medical Oncology is on your <strong>right</strong>.', arrow: 'arrive', landmark: 'Medical Oncology' }
+    ]
+  },
+
+  // ── FLOOR 5 ──
+  {
+    id: 'medical-wards',
+    name: 'Medical Wards (North & South)',
+    nameIrish: 'Bardaí Liachta (Thuaidh & Theas)',
+    floor: 5,
+    icon: 'ward',
+    accessNote: 'Lift access to Level 5. Visiting hours apply — check at reception.',
+    accessNoteIrish: 'Rochtain ardaitheora go Leibhéal 5. Tá uaireanta cuairte i bhfeidhm — féach ag an deasc fáiltithe.',
+    steps: [
+      { text: 'Enter through the <strong>main entrance</strong> sliding doors.', landmark: null },
+      { text: 'Continue through the lobby and inner doors into the <strong>new entrance area</strong>.', landmark: null },
+      { text: 'Go <strong>straight ahead</strong> into the main thoroughfare.', arrow: 'up', landmark: null },
+      { text: 'Turn <strong>right</strong> on the main thoroughfare.', arrow: 'right', landmark: null },
+      { text: 'Continue <strong>straight</strong> past the lifts and stairwell.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Ambulatory Gynae</strong> and through the open double doors.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Physiotherapy</strong> on the right and an exit on the left.', arrow: 'up', landmark: null },
+      { text: 'At the junction, continue <strong>diagonally straight ahead</strong> past the shop.', arrow: 'up', landmark: 'Shop on your left' },
+      { text: 'The lift lobby is through the archway on your <strong>left</strong>.', arrow: 'left', landmark: 'Main lift lobby' },
+      { type: 'lift', toFloor: 5 },
+      { text: 'Exit the lift and turn <strong>left</strong>. (If using the stairs, turn <strong>right</strong>.)', arrow: 'left', landmark: null },
+      { text: 'Pass through the open double doors and take a <strong>left</strong>.', arrow: 'left', landmark: null },
+      { text: 'Continue through the archway / double doors.', arrow: 'up', landmark: null },
+      { text: '<strong>Medical North</strong> is on your right. <strong>Medical South</strong> is further along on your left.', arrow: 'arrive', landmark: 'Medical Wards' }
+    ]
+  },
+
+  // ── FLOOR 6 ──
+  {
+    id: 'surgical-wards',
+    name: 'Surgical Wards',
+    nameIrish: 'Bardaí Máinliachta',
+    floor: 6,
+    icon: 'surgical',
+    accessNote: 'Lift access to Level 6. Visiting hours apply — check at reception.',
+    accessNoteIrish: 'Rochtain ardaitheora go Leibhéal 6. Tá uaireanta cuairte i bhfeidhm — féach ag an deasc fáiltithe.',
+    steps: [
+      { text: 'Enter through the <strong>main entrance</strong> sliding doors.', landmark: null },
+      { text: 'Continue through the lobby and inner doors into the <strong>new entrance area</strong>.', landmark: null },
+      { text: 'Go <strong>straight ahead</strong> into the main thoroughfare.', arrow: 'up', landmark: null },
+      { text: 'Turn <strong>right</strong> on the main thoroughfare.', arrow: 'right', landmark: null },
+      { text: 'Continue <strong>straight</strong> past the lifts and stairwell.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Ambulatory Gynae</strong> and through the open double doors.', arrow: 'up', landmark: null },
+      { text: 'Continue past <strong>Physiotherapy</strong> on the right and an exit on the left.', arrow: 'up', landmark: null },
+      { text: 'At the junction, continue <strong>diagonally straight ahead</strong> past the shop.', arrow: 'up', landmark: 'Shop on your left' },
+      { text: 'The lift lobby is through the archway on your <strong>left</strong>.', arrow: 'left', landmark: 'Main lift lobby' },
+      { type: 'lift', toFloor: 6 },
+      { text: 'Exit the lift and turn <strong>left</strong>. (If using the stairs, turn <strong>right</strong>.)', arrow: 'left', landmark: null },
+      { text: 'Pass through the open double doors and take a <strong>left</strong>.', arrow: 'left', landmark: null },
+      { text: 'Continue through the archway / double doors.', arrow: 'up', landmark: null },
+      { text: 'Surgical North is on your <strong>right</strong>.', arrow: 'arrive', landmark: 'Surgical Wards' }
+    ]
+  }
 ];
 
-let curFloor='all',curQ='';
+// ═══════════════════════════════════════════════════════════
+// RENDERING
+// ═══════════════════════════════════════════════════════════
 
-function renderTabs(){
-  document.getElementById('tabs').innerHTML=floors.map(f=>
-    '<div class="tab '+(f.id===curFloor?'on':'')+'" onclick="setFloor(\''+f.id+'\')">'+f.label+'</div>'
-  ).join('');
+function t(key) {
+  return i18n[currentLang][key] ?? i18n.en[key] ?? key;
 }
 
-function renderList(){
-  const q=curQ.toLowerCase();
-  let list=depts;
-  if(curFloor!=='all')list=list.filter(d=>d.floor===curFloor);
-  if(q)list=list.filter(d=>d.name.toLowerCase().includes(q)||d.cat.toLowerCase().includes(q));
-  const el=document.getElementById('list');
-  const lbl=document.getElementById('lbl');
-  if(!list.length){el.innerHTML='<div class="empty">No departments found.</div>';lbl.textContent='No results';return}
-  lbl.textContent=q?'Results for "'+curQ+'"':(curFloor==='all'?'All Departments':floorLabel[curFloor]||'');
-  el.innerHTML=list.map(d=>'<div class="card fl'+d.floor+'" onclick="openDir(\''+d.id+'\')"><div class="card-top"><div class="card-icon">'+(icons[d.icon]||icons.clinic)+'</div><div><div class="card-name">'+d.name+'</div><div class="card-sub">'+floorLabel[d.floor]+' · '+d.cat+'</div></div></div><div class="card-meta"><span>\u{1F6B6} '+d.walk+'</span>'+(d.acc?'<span>\u267F Accessible</span>':'')+'</div></div>').join('');
+function getName(dest) {
+  return currentLang === 'ga' && dest.nameIrish ? dest.nameIrish : dest.name;
 }
 
-function setFloor(f){curFloor=f;renderTabs();renderList()}
+function getSecondaryName(dest) {
+  // The "italic" subtitle on cards: shows the OTHER language as a hint
+  return currentLang === 'ga' ? dest.name : dest.nameIrish;
+}
 
-const qInput=document.getElementById('q');
-const qx=document.getElementById('qx');
-qInput.addEventListener('input',()=>{curQ=qInput.value;qx.style.display=curQ?'block':'none';renderList()});
-function clearSearch(){qInput.value='';curQ='';qx.style.display='none';renderList();qInput.focus()}
+function getAccessNote(dest) {
+  return currentLang === 'ga' && dest.accessNoteIrish ? dest.accessNoteIrish : dest.accessNote;
+}
 
-function openDir(id){
-  const d=depts.find(x=>x.id===id);if(!d)return;
-  document.getElementById('dirTitle').textContent=d.name;
-  document.getElementById('dirFloor').textContent=floorLabel[d.floor];
-  document.getElementById('dirInfo').innerHTML='<div class="dir-info-row"><span>\u{1F6B6} '+d.walk+'</span><span>\u{1F4CD} '+floorLabel[d.floor]+'</span>'+(d.acc?'<span>\u267F Accessible</span>':'')+'</div>';
-  let h='';
-  d.steps.forEach((s,i)=>{
-    const dc=s.type==='arrive'?'dot-arrive':s.type==='turn'?'dot-turn':'dot-go';
-    const lb=s.type==='arrive'?'\u2605':(i+1);
-    h+='<div class="step"><div class="step-dot"><div class="dot '+dc+'">'+lb+'</div><div class="step-line"></div></div><div><div class="step-txt">'+s.t+'</div>'+(s.lm?'<div class="step-lm">\u{1F4CD} '+s.lm+'</div>':'')+'</div></div>';
+function renderCards(filter = '') {
+  const container = document.getElementById('cards');
+  const empty = document.getElementById('emptyState');
+  const lower = filter.toLowerCase().trim();
+
+  const filtered = destinations.filter(d => {
+    if (!lower) return true;
+    return (
+      d.name.toLowerCase().includes(lower) ||
+      (d.nameIrish && d.nameIrish.toLowerCase().includes(lower)) ||
+      String(d.floor).includes(lower)
+    );
   });
-  document.getElementById('dirBody').innerHTML=h;
-  const dir=document.getElementById('dir');dir.classList.add('show');dir.scrollTop=0;
-}
-function closeDir(){document.getElementById('dir').classList.remove('show')}
 
-renderTabs();renderList();
+  if (filtered.length === 0) {
+    container.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  container.innerHTML = filtered.map(d => `
+    <button class="card" data-id="${d.id}" aria-label="${d.name} on Level ${d.floor}">
+      <div class="card-floor-block floor-${d.floor}">
+        <div class="card-floor-num">${d.floor}</div>
+        <div class="card-floor-label">Level</div>
+      </div>
+      <div class="card-content">
+        <div class="card-icon">${icons[d.icon] || icons.walk}</div>
+        <div class="card-text">
+          <div class="card-name">${getName(d)}</div>
+          ${getSecondaryName(d) ? `<div class="card-name-irish">${getSecondaryName(d)}</div>` : ''}
+        </div>
+        <div class="card-arrow">${icons.arrowRight}</div>
+      </div>
+    </button>
+  `).join('');
+
+  container.querySelectorAll('.card').forEach(btn => {
+    btn.addEventListener('click', () => showDetail(btn.dataset.id));
+  });
+}
+
+function showDetail(id) {
+  const dest = destinations.find(d => d.id === id);
+  if (!dest) return;
+
+  const colour = i18n[currentLang].floorColours[dest.floor] || '';
+  const floorColourPhrase = t('floorColour').replace('{colour}', colour);
+
+  const detailHtml = `
+    <div class="detail-header">
+      <div class="detail-floor-banner floor-${dest.floor}">
+        <div class="detail-floor-num">${dest.floor}</div>
+        <div class="detail-floor-text">
+          <strong>${t('onLevel')} ${dest.floor}</strong>
+          ${floorColourPhrase}
+        </div>
+      </div>
+      <h2 class="detail-name">${getName(dest)}</h2>
+      ${getSecondaryName(dest) ? `<div class="detail-name-irish">${getSecondaryName(dest)}</div>` : ''}
+      <div class="detail-meta">
+        <span class="detail-meta-item">${icons.walk} ${dest.steps.filter(s => !s.type).length} steps</span>
+        <span class="detail-meta-item">${icons.accessible} ${t('accessibility')}</span>
+      </div>
+    </div>
+
+    <div class="steps-section">
+      <h3 class="steps-heading">${t('directions')}</h3>
+      ${renderSteps(dest)}
+    </div>
+
+    <div class="access-note">
+      <strong>${t('accessibility')}</strong>
+      ${getAccessNote(dest)}
+    </div>
+  `;
+
+  document.getElementById('detailView').innerHTML = detailHtml;
+  document.getElementById('listView').style.display = 'none';
+  document.getElementById('detailView').classList.add('active');
+  document.getElementById('backBar').classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderSteps(dest) {
+  let stepNum = 0;
+  return dest.steps.map((step, i) => {
+    if (step.type === 'lift') {
+      const colour = i18n[currentLang].floorColours[step.toFloor] || '';
+      return `
+        <div class="lift-transition">
+          <div class="lift-transition-label">${currentLang === 'ga' ? 'Tóg an t-ardaitheoir nó na staighrí' : 'Take the lift or stairs'}</div>
+          <div class="lift-transition-text">
+            ${currentLang === 'ga' ? 'go' : 'to'}
+            <span class="floor-chip floor-${step.toFloor}">${step.toFloor}</span>
+            <strong>${t('onLevel')} ${step.toFloor}</strong>
+          </div>
+        </div>
+      `;
+    }
+
+    stepNum++;
+    const isArrive = step.arrow === 'arrive';
+    return `
+      <div class="step">
+        <div class="step-num ${isArrive ? 'arrive' : ''}">${isArrive ? '★' : stepNum}</div>
+        <div class="step-content">
+          <div class="step-text">${step.text}</div>
+          ${step.landmark ? `<div class="step-landmark">${step.landmark}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showList() {
+  document.getElementById('listView').style.display = 'block';
+  document.getElementById('detailView').classList.remove('active');
+  document.getElementById('backBar').classList.remove('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.getElementById('langToggle').textContent = t('langToggleLabel');
+  document.documentElement.lang = currentLang === 'ga' ? 'ga' : 'en';
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'ga' : 'en';
+  applyTranslations();
+  renderCards(document.getElementById('searchInput').value);
+  // If detail is currently visible, re-render it in the new language
+  if (document.getElementById('detailView').classList.contains('active')) {
+    const currentId = document.querySelector('.detail-name')?.closest('.detail').querySelector('[data-id]')?.dataset?.id;
+    // Workaround: store the current id on the detail container
+    const id = document.getElementById('detailView').dataset.currentId;
+    if (id) showDetail(id);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// EVENT WIRING
+// ═══════════════════════════════════════════════════════════
+document.getElementById('langToggle').addEventListener('click', toggleLang);
+document.getElementById('backBtn').addEventListener('click', showList);
+document.getElementById('searchInput').addEventListener('input', e => renderCards(e.target.value));
+
+// Track current detail id for language toggle
+const origShowDetail = showDetail;
+showDetail = function(id) {
+  document.getElementById('detailView').dataset.currentId = id;
+  origShowDetail(id);
+};
+
+// Initial render
+applyTranslations();
+renderCards();
+
 </script>
+
 </body>
 </html>
